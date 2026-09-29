@@ -1,0 +1,53 @@
+# Azure Pipelines:替代 GitHub Actions(账号账单冻结)与 Cirrus CI(国内不可达)
+# dev.azure.com 国内直连可用;免费额度 1800 分钟/月
+
+trigger:
+  branches:
+    include:
+      - main
+
+jobs:
+  # 1) Windows x64 免安装包(zip)
+  - job: Windows
+    pool:
+      vmImage: windows-latest
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '3.12'
+      - script: python -m pip install kivy==2.3.1 numpy numpy-stl pyinstaller
+        displayName: 安装依赖
+      - script: python -m PyInstaller --noconfirm --clean packaging/omni.spec
+        displayName: PyInstaller 打包
+      - task: ArchiveFiles@2
+        inputs:
+          rootFolderOrFile: dist/Omni
+          includeRootFolder: false
+          archiveType: zip
+          archiveFile: $(Build.ArtifactStagingDirectory)/Omni-windows-x64.zip
+        displayName: 压缩产物
+      - task: PublishBuildArtifacts@1
+        inputs:
+          pathToPublish: $(Build.ArtifactStagingDirectory)
+          artifactName: windows
+
+  # 2) 老 Linux 兼容 deb:Ubuntu 20.04(glibc 2.31)容器内构建
+  - job: LinuxLegacy
+    pool:
+      vmImage: ubuntu-latest
+    container: ubuntu:20.04
+    steps:
+      - script: |
+          apt-get update && apt-get install -y wget git unzip xz-utils
+          wget -q https://repo.anaconda.com/miniconda/Miniconda3-py312_24.11.1-0-Linux-x86_64.sh -O /tmp/miniconda.sh
+          bash /tmp/miniconda.sh -b -p /opt/conda
+          /opt/conda/bin/conda create -n omni -y -c conda-forge \
+            python=3.12 kivy==2.3.1 numpy numpy-stl pyinstaller
+          /opt/conda/bin/conda run -n omni python -m PyInstaller \
+            --noconfirm --clean packaging/omni.spec
+          ./packaging/build_deb.sh --skip-build
+        displayName: 装环境并打 deb
+      - task: PublishBuildArtifacts@1
+        inputs:
+          pathToPublish: dist
+          artifactName: linux-deb

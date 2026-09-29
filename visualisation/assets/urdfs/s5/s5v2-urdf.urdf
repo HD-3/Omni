@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="s5v2-urdf">
+    <link name="dummy">
+     </link>
+    <joint name="dummy_joint" type="fixed">
+       <parent link="dummy"/>
+       <child link="base_link"/>
+     </joint>
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-0.016648740618043 -5.50190933559734E-07 0.0702703653623643"
+        rpy="0 0 0" />
+      <mass
+        value="0.64777896654581" />
+      <inertia
+        ixx="0.00148832118611166"
+        ixy="-6.53862417987819E-09"
+        ixz="-0.000279104549732045"
+        iyy="0.00173629402742402"
+        iyz="-3.96105220662037E-09"
+        izz="0.000572068209460045" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://s5v2-urdf/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://s5v2-urdf/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="Link1">
+    <inertial>
+      <origin
+        xyz="0.00798701738595499 -0.00833523745327155 0.0261365889290028"
+        rpy="0 0 0" />
+      <mass
+        value="0.11737274526931" />
+      <inertia
+        ixx="7.72057355636146E-05"
+        ixy="1.48546544528253E-05"
+        ixz="-2.41830326679712E-05"
+        iyy="9.04404980795637E-05"
+        iyz="2.12422837826357E-05"
+        izz="7.54512554454319E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://s5v2-urdf/meshes/Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.847058823529412 0.92156862745098 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://s5v2-urdf/meshes/Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Joint1"
+    type="revolute">
+    <origin
+      xyz="0 0 0.167"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="Link1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.1416"
+      upper="3.1416"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Link2">
+    <inertial>
+      <origin
+        xyz="-0.0198551250226492 -5.34400272498135E-07 0.0989930998806709"
+        rpy="0 0 0" />
+      <mass
+        value="0.653544979934337" />
+      <inertia
+        ixx="0.00359162866236928"
+        ixy="1.16072615791387E-09"
+        ixz="-8.52189467420408E-08"
+        iyy="0.00370703204134853"
+        iyz="0.000176843910550019"
+        izz="0.000368890672895969" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://s5v2-urdf/meshes/Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.847058823529412 0.92156862745098 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://s5v2-urdf/meshes/Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Joint2"
+    type="revolute">
+    <origin
+      xyz="0.0280000000000002 0 0.0500000000000002"
+      rpy="0 0 0" />
+    <parent
+      link="Link1" />
+    <child
+      link="Link2" />
+    <axis
+      xyz="0 -1 0" />
+    <limit
+      lower="-2.967"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Link3">
+    <inertial>
+      <origin
+        xyz="-0.0245116937495362 0.00312058429728695 0.0618218283148386"
+        rpy="0 0 0" />
+      <mass
+        value="0.261618678388505" />
+      <inertia
+        ixx="0.000378042120195952"
+        ixy="-1.6219057365005E-05"
+        ixz="5.56818747780199E-05"
+        iyy="0.000389901128014368"
+        iyz="4.83388106052815E-05"
+        izz="0.00013095201836661" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://s5v2-urdf/meshes/Link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.847058823529412 0.92156862745098 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://s5v2-urdf/meshes/Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Joint3"
+    type="revolute">
+    <origin
+      xyz="0 0 0.198"
+      rpy="0 0 0" />
+    <parent
+      link="Link2" />
+    <child
+      link="Link3" />
+    <axis
+      xyz="0 -1 0" />
+    <limit
+      lower="-2.967"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Link4">
+    <inertial>
+      <origin
+        xyz="8.55432269487454E-07 -8.32461146281828E-06 0.142000907704734"
+        rpy="0 0 0" />
+      <mass
+        value="0.34609150512939" />
+      <inertia
+        ixx="0.000928162079876884"
+        ixy="-1.06787924110291E-11"
+        ixz="3.80510966694995E-09"
+        iyy="0.000929241411735722"
+        iyz="-1.0173920452005E-08"
+        izz="0.000111572620379739" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://s5v2-urdf/meshes/Link4.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.847058823529412 0.92156862745098 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://s5v2-urdf/meshes/Link4.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Joint4"
+    type="revolute">
+    <origin
+      xyz="-0.0279999999999999 0 0.0580000000000001"
+      rpy="0 0 0" />
+    <parent
+      link="Link3" />
+    <child
+      link="Link4" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-3.1416"
+      upper="3.1416"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="LinkGL">
+    <inertial>
+      <origin
+        xyz="0.00556474692029639 7.97779334583917E-11 0.0372312024345152"
+        rpy="0 0 0" />
+      <mass
+        value="0.0339734553333478" />
+      <inertia
+        ixx="3.41780335512714E-05"
+        ixy="8.61857358067258E-16"
+        ixz="-4.44983336219192E-07"
+        iyy="3.42138423939565E-05"
+        iyz="-5.8585267671843E-15"
+        izz="4.40042786927775E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://s5v2-urdf/meshes/LinkGL.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.847058823529412 0.92156862745098 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://s5v2-urdf/meshes/LinkGL.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="JointGL"
+    type="revolute">
+    <origin
+      xyz="-0.0184999999999992 0 0.2383"
+      rpy="0 0 0" />
+    <parent
+      link="Link4" />
+    <child
+      link="LinkGL" />
+    <axis
+      xyz="0 -1 0" />
+    <limit
+      lower="0"
+      upper="0.606"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="LinkGR">
+    <inertial>
+      <origin
+        xyz="-0.00558897843334017 1.62747392190308E-10 0.0371103709713225"
+        rpy="0 0 0" />
+      <mass
+        value="0.0345309269920864" />
+      <inertia
+        ixx="3.62373607773625E-05"
+        ixy="6.31006760707808E-14"
+        ixz="5.60142489365513E-07"
+        iyy="3.54193840177076E-05"
+        iyz="-2.69660368191718E-13"
+        izz="5.26545014448406E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://s5v2-urdf/meshes/LinkGR.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.847058823529412 0.92156862745098 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://s5v2-urdf/meshes/LinkGR.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="JointGR"
+    type="revolute">
+    <origin
+      xyz="0.0185000000000007 0 0.2383"
+      rpy="0 0 0" />
+    <parent
+      link="Link4" />
+    <child
+      link="LinkGR" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="0"
+      upper="0.606"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="LinkG">
+    <inertial>
+      <origin
+        xyz="7.51051325962141E-17 -5.55587333493234E-18 0.000499999999999945"
+        rpy="0 0 0" />
+      <mass
+        value="1.96349540849362E-05" />
+      <inertia
+        ixx="3.23158619314576E-11"
+        ixy="2.30557747232454E-28"
+        ixz="1.16828324727606E-26"
+        iyy="3.23158619314576E-11"
+        iyz="-2.57605711941121E-25"
+        izz="6.13592315154257E-11" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://s5v2-urdf/meshes/LinkG.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://s5v2-urdf/meshes/LinkG.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="JointG"
+    type="fixed">
+    <origin
+      xyz="0 0 0.2283"
+      rpy="0 0 0" />
+    <parent
+      link="Link4" />
+    <child
+      link="LinkG" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+</robot>

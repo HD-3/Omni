@@ -1,0 +1,16 @@
+{
+  "steps": [
+    {
+      "id": "viewport",
+      "title": "3D 视口",
+      "text": "这是机器人的 3D 视图。\n左键拖拽旋转视角,右键拖拽平移,滚轮缩放。",
+      "target": "viewport"
+    },
+    {
+      "id": "joints",
+      "title": "关节控制",
+      "text": "拖动滑块控制每个关节的角度,\n机器人会实时运动。复位按钮回到中间姿态。",
+      "target": "joint_panel"
+    }
+  ]
+}

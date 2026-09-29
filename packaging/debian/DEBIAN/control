@@ -1,0 +1,12 @@
+Package: omni
+Version: 1.0.1
+Section: science
+Priority: optional
+Architecture: amd64
+Depends: libgl1, libegl1, libx11-6, libxau6, libxdmcp6, libxext6, libxmu6, libxt6, libsm6, libice6, libxrender1, libxrandr2, libxcursor1, libxi6, libxkbcommon0, libxkbcommon-x11-0, libxinerama1, libxss1, libxxf86vm1, libuuid1, libbsd0, libmd0, libmtdev1, libasound2, libpulse0
+Maintainer: ct <ct@localhost>
+Description: Omni 机器人可视化软件
+ Kivy + OpenGL 构建的机器人模型可视化与实物板联调工具。
+ 支持 URDF 加载、关节实时控制、轨道相机交互;可通过 TCP 连接开发板上的
+ bridge_node(板侧 ROS2 桥),实时显示实际关节状态。
+ (剪贴板工具 xclip/xsel 已随包自带,无需系统安装。)

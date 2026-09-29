@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Omni
+Name[zh_CN]=Omni 机器人可视化
+Comment=机器人模型可视化与实物板联调工具
+Comment[zh_CN]=机器人模型可视化与实物板联调工具
+Exec=/opt/omni/Omni %F
+Icon=omni
+Terminal=false
+Categories=Science;Robotics;
+Keywords=robot;urdf;visualization;机器人;

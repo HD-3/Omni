@@ -1,0 +1,6 @@
+# Omni 运行依赖(conda 环境 omni, python=3.12)
+kivy==2.3.1
+numpy
+numpy-stl
+# 打包(仅构建时):
+pyinstaller>=6.0

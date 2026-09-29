@@ -1,0 +1,265 @@
+#:import theme theme
+
+# 全局按钮:默认纹理在此环境渲染异常(背景灰、文字反而变浅),
+# 显式用深海军蓝实色底(同 ReachControl 的 RR_NAVY_OPAQUE);
+# disabled 时背景变暗(板控制权模式下只读控件的视觉反馈)
+<Button>:
+    background_normal: ''
+    background_color: (0.13, 0.17, 0.24, 1) if self.disabled else theme.COLOR_BUTTON
+    color: theme.COLOR_TEXT
+
+# 全局滑块:默认主题的轨道/进度条纹理在此环境不渲染(截图实测
+# 只剩光标,没有轨道),用主题色重画;光标放大到 24px 更好抓取
+<Slider>:
+    background_width: '8dp'
+    cursor_size: 24, 24
+    # 轨道两端留白(默认 16):缩小让可拖动轨道更长;
+    # 12 时 24px 光标在两端恰好不超出控件边界
+    padding: 12
+    canvas:
+        # 轨道(未填充部分)
+        Color:
+            rgba: 0.25, 0.32, 0.45, 1
+        RoundedRectangle:
+            pos: self.x + self.padding, self.center_y - self.background_width / 2
+            size: self.width - self.padding * 2, self.background_width
+            radius: [self.background_width / 2]
+        # 进度条(已填充部分,随 value_normalized 伸缩;禁用时变暗)
+        Color:
+            rgba: theme.COLOR_ACCENT if not self.disabled else (0.35, 0.4, 0.5, 1)
+        RoundedRectangle:
+            pos: self.x + self.padding, self.center_y - self.background_width / 2
+            size: max(self.value_normalized * (self.width - self.padding * 2), 0), self.background_width
+            radius: [self.background_width / 2]
+        # 光标(亮色圆,与深色轨道强对比;禁用时变暗)
+        Color:
+            rgba: (0.85, 0.87, 0.90, 1) if not self.disabled else (0.45, 0.48, 0.52, 1)
+        Ellipse:
+            pos: self.x + self.padding + self.value_normalized * (self.width - self.padding * 2) - self.cursor_size[0] / 2, self.center_y - self.cursor_size[1] / 2
+            size: self.cursor_size
+
+# 单个关节滑块行:名称 + 滑块 + 数值
+<JointRow>:
+    size_hint_y: None
+    height: 50
+    Label:
+        text: root.joint_name
+        size_hint_x: 0.27
+        font_size: theme.FONT_SIZE_HELP
+        color: theme.COLOR_TEXT_DIM
+        halign: 'left'
+        valign: 'middle'
+        text_size: self.size
+        shorten: True
+    Button:
+        # 步进按钮:步长在面板顶部输入框统一设置(单位度)
+        id: btn_minus
+        text: '-'
+        size_hint_x: None
+        width: 24
+        size_hint_y: None
+        height: 24
+        # BoxLayout 横排不自动交叉轴居中;pos_hint center_y 按行全高算,
+        # 0.5 → 中心 25,按钮落 y 13-37(行高 50),与滑块中心对齐
+        pos_hint: {'center_y': 0.5}
+        font_size: 18
+        color: theme.COLOR_TEXT_DIM if self.disabled else theme.COLOR_PANEL
+        background_normal: ''
+        background_down: ''
+        # 透明必须写成依赖 self.disabled 的表达式:全局 <Button> 规则的
+        # background_color 是绑定表达式,disabled 变化时会重新赋值,把
+        # 静态 (0,0,0,0) 永久覆盖成不透明 COLOR_BUTTON(切换控制权后
+        # 按钮变深色块的根因)。写成表达式后两条绑定都响应 disabled,
+        # 实例规则绑定注册更晚、触发更晚,永远赢回透明(天蓝底由
+        # canvas.before 负责)
+        background_color: (0, 0, 0, 0) if not self.disabled else (0, 0, 0, 0)
+        on_release: root.on_step_button(-1)
+        canvas.before:
+            # 天蓝圆角框:先深一档的圆角矩形做 1px 描边,再内缩 1px 铺
+            # 天蓝填充(双圆角矩形叠描边,避开 1px Line 圆弧的阶梯锯齿)
+            Color:
+                rgba: theme.COLOR_SKY_BORDER if not self.disabled else theme.COLOR_SKY_DISABLED
+            RoundedRectangle:
+                pos: self.pos
+                size: self.size
+                radius: [6]
+            Color:
+                rgba: (theme.COLOR_SKY_PRESSED if self.state == 'down' else theme.COLOR_SKY) if not self.disabled else theme.COLOR_SKY_DISABLED
+            RoundedRectangle:
+                pos: self.x + 1, self.y + 1
+                size: self.width - 2, self.height - 2
+                radius: [5]
+    Slider:
+        id: slider
+        size_hint_x: 0.47
+        min: root.minv
+        max: root.maxv
+        value: root.value
+        on_value: root.on_value_slider(self, self.value)
+    Button:
+        id: btn_plus
+        text: '+'
+        size_hint_x: None
+        width: 24
+        size_hint_y: None
+        height: 24
+        pos_hint: {'center_y': 0.5}
+        font_size: 18
+        color: theme.COLOR_TEXT_DIM if self.disabled else theme.COLOR_PANEL
+        background_normal: ''
+        background_down: ''
+        # 透明必须写成依赖 self.disabled 的表达式,否则切控制权后被全局
+        # <Button> 规则的 background_color 绑定覆盖成不透明深色块
+        # (同 btn_minus 注释)
+        background_color: (0, 0, 0, 0) if not self.disabled else (0, 0, 0, 0)
+        on_release: root.on_step_button(1)
+        canvas.before:
+            # 天蓝圆角框:先深一档的圆角矩形做 1px 描边,再内缩 1px 铺
+            # 天蓝填充(双圆角矩形叠描边,避开 1px Line 圆弧的阶梯锯齿)
+            Color:
+                rgba: theme.COLOR_SKY_BORDER if not self.disabled else theme.COLOR_SKY_DISABLED
+            RoundedRectangle:
+                pos: self.pos
+                size: self.size
+                radius: [6]
+            Color:
+                rgba: (theme.COLOR_SKY_PRESSED if self.state == 'down' else theme.COLOR_SKY) if not self.disabled else theme.COLOR_SKY_DISABLED
+            RoundedRectangle:
+                pos: self.x + 1, self.y + 1
+                size: self.width - 2, self.height - 2
+                radius: [5]
+    Label:
+        id: value_label
+        # 0.26 宽度 ≈ 49px,放得下最宽的 "-174.6°"(实测 46px);
+        # shorten 兜底:万一更宽截断而不是折成两行
+        size_hint_x: 0.26
+        text: f"{root.value:.1f}°"
+        font_size: theme.FONT_SIZE_HELP
+        color: theme.COLOR_TEXT
+        halign: 'right'
+        valign: 'middle'
+        text_size: self.size
+        shorten: True
+
+# 左栏面板:背景由所在侧边栏统一绘制(避免两层半透明叠加变暗)
+<JointPanel>:
+    orientation: 'vertical'
+    padding: theme.PANEL_BORDER
+    spacing: theme.PANEL_SEPARATOR
+
+# 根布局:3D 视口占满窗口,HUD 浮在 3D 之上(左栏默认折叠)
+<OmniRoot>:
+    # 3D 场景:全窗口,最底层
+    Viewport3D:
+        id: viewport
+        size_hint: 1, 1
+        pos: 0, 0
+
+    # 悬浮顶栏(3D 之上,默认隐藏,鼠标移到窗口顶部滑出;四周留白)
+    # 注意:位置由 main.py 的 _sync_topbar_pos/_set_topbar_visible 管理,
+    # 不写 kv pos 规则——kv 绑定会在窗口挂载(root 高度 100→800)时
+    # 重新触发,把初始隐藏位覆盖成显示位(启动即显示的 bug)
+    BoxLayout:
+        id: top_bar
+        size_hint: None, None
+        width: root.width - theme.HUD_TOP_OFFSET * 2
+        height: theme.HUD_TOP_HEIGHT
+        spacing: theme.PANEL_SEPARATOR
+        padding: [theme.PANEL_BORDER, theme.PANEL_SEPARATOR]
+        canvas.before:
+            Color:
+                # 与左栏一致的面板底色
+                rgba: theme.COLOR_PANEL
+            RoundedRectangle:
+                # int() 像素对齐,避免亚像素模糊(同 ReachControl 做法)
+                pos: int(self.x), int(self.y)
+                size: int(self.width), int(self.height)
+                radius: [10,]
+            Color:
+                rgba: theme.COLOR_PANEL_BORDER
+            SmoothLine:
+                rounded_rectangle: (int(self.x), int(self.y), int(self.width), int(self.height), 10, 90)
+                width: 1
+        Button:
+            id: joints_btn
+            text: '关节控制'
+            size_hint_x: None
+            width: 130
+            font_size: theme.FONT_SIZE_SUB
+            on_release: root._show_panel('joints')
+        Button:
+            id: connect_btn
+            text: '连接设置'
+            size_hint_x: None
+            width: 150
+            font_size: theme.FONT_SIZE_SUB
+            on_release: root._show_panel('connect')
+        Label:
+            id: status
+            text: 'Loading...'
+            font_size: theme.FONT_SIZE_SUB
+            color: theme.COLOR_TEXT_DIM
+            halign: 'right'
+            valign: 'middle'
+            text_size: self.size
+            shorten: True
+        Button:
+            id: open_btn
+            text: '选择 URDF'
+            size_hint_x: None
+            width: 150
+            font_size: theme.FONT_SIZE_SUB
+            background_color: theme.COLOR_TOPBAR_BTN
+            on_release: root._pick_urdf()
+
+    # 关节控制侧边栏(默认在窗口外,点顶栏按钮滑出;位于顶栏下方)
+    BoxLayout:
+        id: joint_sidebar
+        size_hint: None, None
+        width: theme.HUD_LEFT_WIDTH
+        height: self.minimum_height
+        # 与顶栏相同的四周留白:上边距在顶栏下方,左边距由 _sync_sidebars 控制
+        y: root.height - theme.HUD_TOP_HEIGHT - theme.HUD_TOP_OFFSET * 2 - self.height
+        orientation: 'vertical'
+        padding: theme.PANEL_SEPARATOR
+        canvas.before:
+            Color:
+                rgba: theme.COLOR_PANEL
+            RoundedRectangle:
+                pos: int(self.x), int(self.y)
+                size: int(self.width), int(self.height)
+                radius: [10,]
+            Color:
+                rgba: theme.COLOR_PANEL_BORDER
+            SmoothLine:
+                rounded_rectangle: (int(self.x), int(self.y), int(self.width), int(self.height), 10, 90)
+                width: 1
+        JointPanel:
+            id: joint_panel
+            size_hint_y: None
+            height: self.minimum_height
+    # 连接设置侧边栏(与关节控制互为切换,同一时间只显示一个)
+    BoxLayout:
+        id: connect_sidebar
+        size_hint: None, None
+        width: theme.HUD_LEFT_WIDTH
+        height: self.minimum_height
+        y: root.height - theme.HUD_TOP_HEIGHT - theme.HUD_TOP_OFFSET * 2 - self.height
+        orientation: 'vertical'
+        padding: theme.PANEL_SEPARATOR
+        canvas.before:
+            Color:
+                rgba: theme.COLOR_PANEL
+            RoundedRectangle:
+                pos: int(self.x), int(self.y)
+                size: int(self.width), int(self.height)
+                radius: [10,]
+            Color:
+                rgba: theme.COLOR_PANEL_BORDER
+            SmoothLine:
+                rounded_rectangle: (int(self.x), int(self.y), int(self.width), int(self.height), 10, 90)
+                width: 1
+        ConnectPanel:
+            id: connect_panel
+            size_hint_y: None
+            height: self.minimum_height

@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# 构建产物(PyInstaller / deb)
+build/
+dist/
+packaging/debian/opt/
+*.deb
+
+# Kivy 运行期
+.kivy/
+*.log

@@ -1,0 +1,33 @@
+# Cirrus CI 流水线:替代 GitHub Actions(后者被账号账单问题冻结)
+# 触发:push 到 main;也可在 cirrus-ci.com 手动 Re-run
+
+# 1) Windows x64 免安装包(onedir 压缩成 zip)
+windows_task:
+  name: Windows x64 打包
+  windows_container:
+    image: cirrusci/windowsservercore:2019
+  install_script:
+    - powershell -Command "Invoke-WebRequest -Uri https://repo.anaconda.com/miniconda/Miniconda3-py312_24.11.1-0-Windows-x86_64.exe -OutFile C:\miniconda.exe"
+    - C:\miniconda.exe /S /D=C:\Miniconda
+    - C:\Miniconda\Scripts\conda.exe create -n omni -y -c conda-forge python=3.12 kivy==2.3.1 numpy numpy-stl pyinstaller
+  build_script:
+    - C:\Miniconda\Scripts\conda.exe run -n omni python -m PyInstaller --noconfirm --clean packaging\omni.spec
+    - powershell -Command "Compress-Archive -Path dist\Omni -DestinationPath Omni-windows-x64.zip"
+  windows_artifacts:
+    path: "Omni-windows-x64.zip"
+
+# 2) 老 Linux 兼容 deb:Ubuntu 20.04(glibc 2.31)容器内构建
+linux_task:
+  name: Linux 老系统兼容 deb
+  container:
+    image: ubuntu:20.04
+  install_script:
+    - apt-get update && apt-get install -y wget unzip git xz-utils
+    - wget -q https://repo.anaconda.com/miniconda/Miniconda3-py312_24.11.1-0-Linux-x86_64.sh -O /tmp/miniconda.sh
+    - bash /tmp/miniconda.sh -b -p /opt/conda
+  build_script:
+    - /opt/conda/bin/conda create -n omni -y -c conda-forge python=3.12 kivy==2.3.1 numpy numpy-stl pyinstaller
+    - /opt/conda/bin/conda run -n omni python -m PyInstaller --noconfirm --clean packaging/omni.spec
+    - ./packaging/build_deb.sh --skip-build
+  deb_artifacts:
+    path: "dist/*.deb"

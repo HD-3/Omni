@@ -42,11 +42,17 @@ datas = [
 
 # conda 环境的 SDL2 动态库(ctypes 运行时加载,静态分析找不到,手动收集)
 binaries = []
-env_lib = os.path.join(sys.base_prefix, 'lib')
-for pattern in ('libSDL2-2.0.so*', 'libSDL2_image-2.0.so*',
-                'libSDL2_ttf-2.0.so*', 'libSDL2_mixer-2.0.so*'):
-    for f in glob.glob(os.path.join(env_lib, pattern)):
-        binaries.append((f, '.'))
+if sys.platform == 'win32':
+    env_bin = os.path.join(sys.base_prefix, 'Library', 'bin')
+    for dll in ('SDL2.dll', 'SDL2_image.dll', 'SDL2_ttf.dll', 'SDL2_mixer.dll'):
+        for f in glob.glob(os.path.join(env_bin, dll)):
+            binaries.append((f, '.'))
+else:
+    env_lib = os.path.join(sys.base_prefix, 'lib')
+    for pattern in ('libSDL2-2.0.so*', 'libSDL2_image-2.0.so*',
+                    'libSDL2_ttf-2.0.so*', 'libSDL2_mixer-2.0.so*'):
+        for f in glob.glob(os.path.join(env_lib, pattern)):
+            binaries.append((f, '.'))
 
 # 图像 provider 显式带上,避免默认 provider 探测遗漏
 hiddenimports = ['numpy', 'stl'] + kivy_deps['hiddenimports'] + [

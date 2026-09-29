@@ -1,12 +1,68 @@
-name: ci
+name: build
 
+# 每次推到 main 触发,也可在 Actions 页面手动 Run workflow
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
 jobs:
-  smoke:
-    runs-on: ubuntu-latest
+  # 1) Windows x64 免安装包(windows-latest 免费 Windows 构建机)
+  windows:
+    runs-on: windows-latest
     steps:
-      - run: echo hello
+      - uses: actions/checkout@v4
+
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: '3.12'
+          auto-activate-base: false
+          activate-environment: build
+
+      - name: 安装依赖
+        shell: bash -el {0}
+        run: conda install -c conda-forge -y kivy==2.3.1 numpy numpy-stl pyinstaller
+
+      - name: PyInstaller 打包
+        shell: bash -el {0}
+        run: python -m PyInstaller --noconfirm --clean packaging/omni.spec
+
+      - name: 压缩产物(onedir 整目录打包,解压即用)
+        shell: pwsh
+        run: Compress-Archive -Path dist/Omni -DestinationPath Omni-windows-x64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Omni-Windows-x64
+          path: Omni-windows-x64.zip
+
+  # 2) 老 Linux 兼容 deb:Ubuntu 20.04(glibc 2.31)容器内构建,
+  #    产物兼容 20.04 及更新系统(当前包实测最低 glibc 2.17,18.04 也可跑)
+  linux-legacy:
+    runs-on: ubuntu-latest
+    container: ubuntu:20.04
+    steps:
+      - name: 装基础工具
+        run: apt-get update && apt-get install -y wget unzip git xz-utils
+
+      - uses: actions/checkout@v4
+
+      - name: 装 Miniconda
+        run: |
+          wget -q https://repo.anaconda.com/miniconda/Miniconda3-py312_24.11.1-0-Linux-x86_64.sh -O /tmp/miniconda.sh
+          bash /tmp/miniconda.sh -b -p /opt/conda
+
+      - name: 建环境并打包
+        run: |
+          /opt/conda/bin/conda create -n omni -y -c conda-forge \
+            python=3.12 kivy==2.3.1 numpy numpy-stl pyinstaller
+          /opt/conda/bin/conda run -n omni python -m PyInstaller \
+            --noconfirm --clean packaging/omni.spec
+
+      - name: 打 deb
+        run: ./packaging/build_deb.sh --skip-build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Omni-Linux-deb-legacy
+          path: dist/*.deb

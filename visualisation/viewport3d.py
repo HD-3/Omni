@@ -10,6 +10,7 @@ GL 着色器,带深度测试。
 import ctypes
 import ctypes.util
 import math
+import sys
 
 from kivy.clock import Clock
 from kivy.core.window import Window
@@ -29,14 +30,46 @@ GL_RGBA8 = 0x8058
 GL_DEPTH_COMPONENT24 = 0x81A6
 GL_READ_FRAMEBUFFER = 0x8CA8
 
-_libgl = ctypes.CDLL(ctypes.util.find_library('GL'))
-_glRenderbufferStorageMultisample = _libgl.glRenderbufferStorageMultisample
-_glRenderbufferStorageMultisample.restype = None
-_glRenderbufferStorageMultisample.argtypes = [
-    ctypes.c_uint, ctypes.c_int, ctypes.c_uint, ctypes.c_int, ctypes.c_int]
-_glBlitFramebuffer = _libgl.glBlitFramebuffer
-_glBlitFramebuffer.restype = None
-_glBlitFramebuffer.argtypes = [ctypes.c_int] * 10
+if sys.platform == 'win32':
+    # Windows 没有 libGL:MSAA 函数是 GL 扩展函数,opengl32.dll 不导出,
+    # 只能 wglGetProcAddress 现取,且必须等 GL 上下文建立之后调用才
+    # 返回有效指针 —— 延迟到 _ensure_msaa_gl(),首次调用发生在
+    # _alloc_msaa 时(此时 Kivy 窗口已建、GL 上下文已当前)。
+    _libgl = ctypes.WinDLL('opengl32')
+    _wgl_get_proc = _libgl.wglGetProcAddress
+    _wgl_get_proc.restype = ctypes.c_void_p
+    _wgl_get_proc.argtypes = [ctypes.c_char_p]
+    _glRenderbufferStorageMultisample = None
+    _glBlitFramebuffer = None
+else:
+    _libgl = ctypes.CDLL(ctypes.util.find_library('GL'))
+    _glRenderbufferStorageMultisample = _libgl.glRenderbufferStorageMultisample
+    _glRenderbufferStorageMultisample.restype = None
+    _glRenderbufferStorageMultisample.argtypes = [
+        ctypes.c_uint, ctypes.c_int, ctypes.c_uint, ctypes.c_int, ctypes.c_int]
+    _glBlitFramebuffer = _libgl.glBlitFramebuffer
+    _glBlitFramebuffer.restype = None
+    _glBlitFramebuffer.argtypes = [ctypes.c_int] * 10
+
+
+def _ensure_msaa_gl():
+    """Windows 上延迟取 MSAA 函数指针;Linux 上 import 时已绑定,直接返回。"""
+    global _glRenderbufferStorageMultisample, _glBlitFramebuffer
+    if sys.platform != 'win32' or _glRenderbufferStorageMultisample is not None:
+        return
+    addr = _wgl_get_proc(b'glRenderbufferStorageMultisample')
+    if addr:
+        _glRenderbufferStorageMultisample = ctypes.WINFUNCTYPE(
+            None, ctypes.c_uint, ctypes.c_int, ctypes.c_uint,
+            ctypes.c_int, ctypes.c_int)(addr)
+    addr = _wgl_get_proc(b'glBlitFramebuffer')
+    if addr:
+        _glBlitFramebuffer = ctypes.WINFUNCTYPE(
+            None, *([ctypes.c_int] * 10))(addr)
+    if _glRenderbufferStorageMultisample is None or _glBlitFramebuffer is None:
+        raise RuntimeError(
+            '[viewport3d] wglGetProcAddress 取不到 MSAA 函数,'
+            '显卡驱动可能不支持 OpenGL')
 
 
 def _build_grid_points(spacing=theme.GRID_SPACING):
@@ -118,6 +151,7 @@ class Viewport3D(Widget):
 
     def _alloc_msaa(self):
         """分配 MSAA renderbuffer 并挂到裸 GL framebuffer 上。"""
+        _ensure_msaa_gl()
         w, h = self._fbo_size()
         gl.glBindRenderbuffer(gl.GL_RENDERBUFFER, self._msaa_color)
         _glRenderbufferStorageMultisample(
@@ -168,6 +202,7 @@ class Viewport3D(Widget):
 
     def _render(self, *_):
         """把 3D 画进 MSAA 目标,resolve 到普通 FBO 纹理显示。"""
+        _ensure_msaa_gl()
         w, h = self._msaa_size
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self._msaa_fbo)
         try:

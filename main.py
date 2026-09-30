@@ -400,7 +400,12 @@ class OmniApp(App):
         Window.clearcolor = theme.COLOR_BG
         # 窗口 1280x800;3D 以 2x 超采样渲染(见 viewport3d.SSAA),
         # 像素量不随窗口缩小而降低
-        Window.size = (1280, 800)
+        # 钳制到屏幕可用区域:小屏(1366x768)或高 DPI 缩放(逻辑分辨率
+        # 变小)下固定 1280x800 会超屏,Windows 实测"窗口只显示一部分";
+        # 预留 40/100px 给任务栏、标题栏。
+        sw, sh = Window.system_size
+        Window.size = (min(1280, max(sw - 40, 800)),
+                       min(800, max(sh - 100, 600)))
         root = OmniRoot(self.urdf_file)
         if self.screenshot_path:
             Clock.schedule_once(self._take_screenshot, 6.0)

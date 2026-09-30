@@ -185,6 +185,7 @@ class GLRenderer:
         导致 Kivy 跳过 glUseProgram,HUD 文字用错程序渲染成实心块。
         """
         self._saved_program = gl.glGetIntegerv(gl.GL_CURRENT_PROGRAM)[0]
+        self._saved_viewport = list(gl.glGetIntegerv(gl.GL_VIEWPORT))
         gl.glViewport(x, y, w, h)
         gl.glClearColor(*clear_color)
         gl.glEnable(gl.GL_DEPTH_TEST)
@@ -255,9 +256,11 @@ class GLRenderer:
         # 恢复全窗口视口:Kivy 只在窗口 resize 时重设 glViewport,若留着
         # 视口局部区域,下一帧 Kivy 的清屏和 HUD 绘制会被裁剪/错位。
         from kivy.core.window import Window
-        density = getattr(Window, '_density', 1.0)
-        gl.glViewport(0, 0, int(Window.width * density),
-                      int(Window.height * density))
+        # density = getattr(Window, '_density', 1.0)
+        # gl.glViewport(0, 0, int(Window.width * density),
+        #               int(Window.height * density))
+        gl.glViewport(*self._saved_viewport)
+        
         # 恢复 Kivy 的清屏色:否则下一帧 Kivy 清屏会用我们留下的
         # 视口背景色刷满整个窗口,把 HUD 底下/周围全染成灰。
         gl.glClearColor(*Window.clearcolor)
